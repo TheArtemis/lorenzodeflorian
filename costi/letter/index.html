@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#f9f0e9">
+  <title>Una lettera per te</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: system-ui, sans-serif;
+      color: #681f35;
+      background: #f9f0e9;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(ellipse at 50% 42%, #fffaf4 2%, transparent 65%),
+        radial-gradient(ellipse at 50% 100%, #f2d9d5, transparent 72%),
+        #f9f0e9;
+    }
+
+    main {
+      display: grid;
+      min-height: 100vh;
+      min-height: 100svh;
+      place-items: center;
+      padding: 2rem 1.5rem;
+    }
+
+    .stationery {
+      width: min(100%, 25rem);
+      padding-block: clamp(6.75rem, 35vw, 9.5rem) 3.75rem;
+    }
+
+    .scene {
+      position: relative;
+      isolation: isolate;
+      aspect-ratio: 1.6;
+    }
+
+    .dedication {
+      position: absolute;
+      bottom: calc(100% + 1.35rem);
+      left: 0;
+      width: 100%;
+      margin: 0;
+      font: italic clamp(2.15rem, 8vw, 3.15rem) / 1 Baskerville, Georgia, serif;
+      text-align: center;
+      transition: opacity 200ms ease 400ms, transform 260ms ease 400ms;
+    }
+
+    .scene[data-open] .dedication {
+      opacity: 0;
+      transform: translateY(-0.5rem);
+      transition-delay: 0s;
+    }
+
+    .back,
+    .pocket {
+      position: absolute;
+      inset: 0;
+      border-radius: 0.45rem;
+    }
+
+    .back {
+      background: linear-gradient(150deg, #802b40, #511729);
+      box-shadow: 0 1.45rem 2.75rem -1.35rem #70263d86, 0 0.2rem 0.45rem #70263d26;
+    }
+
+    .pocket {
+      z-index: 3;
+      overflow: hidden;
+      background: linear-gradient(126deg, #ab465b 2%, #8c2c45 51%, #a74258 100%);
+      clip-path: polygon(0 1%, 50% 57%, 100% 1%, 100% 100%, 0 100%);
+    }
+
+    .pocket::before,
+    .pocket::after {
+      position: absolute;
+      inset: 0;
+      content: "";
+    }
+
+    .pocket::before {
+      background: #702339;
+      clip-path: polygon(0 100%, 48% 40%, 52% 40%, 100% 100%);
+    }
+
+    .pocket::after {
+      background: linear-gradient(170deg, #c05b6e, #9c344e);
+      clip-path: polygon(0 100%, 48% 41%, 52% 41%, 100% 100%);
+    }
+
+    .flap {
+      position: absolute;
+      z-index: 4;
+      inset: 0 0 auto;
+      height: 69%;
+      border-radius: 0.45rem 0.45rem 0 0;
+      transform: perspective(48rem) rotateX(0deg);
+      transform-origin: top center;
+      transition: transform 450ms cubic-bezier(0.32, 0.05, 0.32, 1) 400ms,
+        z-index 0s linear 625ms;
+    }
+
+    .flap::before {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(162deg, #d17281, #ad4157 66%, #a03950);
+      clip-path: polygon(0 0, 100% 0, 100% 3%, 53% 88%, 50% 90%, 47% 88%, 0 3%);
+      content: "";
+    }
+
+    .scene[data-open] .flap {
+      z-index: 1;
+      transform: perspective(48rem) rotateX(178deg);
+      transition-delay: 0s, 210ms;
+    }
+
+    .seal {
+      position: absolute;
+      top: 81%;
+      left: 50%;
+      display: grid;
+      width: clamp(2.5rem, 11vw, 3.25rem);
+      aspect-ratio: 1;
+      place-items: center;
+      border: 0.2rem solid #a0414c;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 26%, #b45862, #8d283e 71%);
+      box-shadow: inset 0 0 0 1px #ef9a9366, 0 0.22rem 0.55rem #57142f73;
+      color: #f9c4b5;
+      font: 1.3rem / 1 Georgia, serif;
+      transform: translate(-50%, -50%);
+      transition: opacity 170ms ease 670ms;
+    }
+
+    .scene[data-open] .seal {
+      opacity: 0;
+      transition-delay: 0s;
+    }
+
+    .letter {
+      position: absolute;
+      z-index: 2;
+      inset: 7% 8% 9%;
+      display: grid;
+      place-items: center;
+      margin: 0;
+      padding: 0 0.7rem 0.65rem;
+      visibility: hidden;
+      border: 1px solid #f0d8c1;
+      border-radius: 0.3rem;
+      background: linear-gradient(150deg, #fffcf3, #fff2e5);
+      box-shadow: 0 0.3rem 1.1rem #57142f3d;
+      text-align: center;
+      transform: scale(0.96);
+      transition: transform 420ms cubic-bezier(0.32, 0, 0.45, 1),
+        visibility 0s linear 420ms;
+    }
+
+    .letter::before {
+      position: absolute;
+      inset: 0.45rem;
+      border: 1px solid #e9c7b880;
+      border-radius: 0.15rem;
+      content: "";
+    }
+
+    .scene[data-open] .letter {
+      visibility: visible;
+      transform: translateY(-80%) rotate(-3deg);
+      transition: transform 620ms cubic-bezier(0.19, 0.78, 0.35, 1) 380ms,
+        visibility 0s linear 340ms;
+    }
+
+    .letter p {
+      margin: 0;
+      font: italic clamp(1.7rem, 7vw, 2.85rem) / 1 Baskerville, Georgia, serif;
+    }
+
+    .letter span {
+      display: block;
+      margin-top: 0.16em;
+      color: #a53e56;
+      font-size: 0.84em;
+    }
+
+    .trigger {
+      position: absolute;
+      z-index: 5;
+      inset: 0;
+      width: 100%;
+      border: 0;
+      border-radius: 0.45rem;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      font: 500 0.875rem / 1.25 system-ui, sans-serif;
+      touch-action: manipulation;
+    }
+
+    .trigger span {
+      position: absolute;
+      top: calc(100% + 0.9rem);
+      left: 50%;
+      display: grid;
+      min-height: 2.75rem;
+      place-items: center;
+      padding: 0 1rem;
+      white-space: nowrap;
+      transform: translateX(-50%);
+    }
+
+    .trigger:focus-visible {
+      outline: 2px solid #812f48;
+      outline-offset: 0.35rem;
+    }
+
+    @media (hover: hover) {
+      .trigger:hover span {
+        text-decoration: underline;
+        text-underline-offset: 0.25em;
+      }
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .scene *,
+      .scene[data-open] * {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="stationery">
+      <div class="scene" data-open>
+        <h1 class="dedication">Per te</h1>
+        <div class="back" aria-hidden="true"></div>
+        <article class="letter" id="letter" aria-label="Lettera">
+          <p>Ti amo infinito <span>+1</span></p>
+        </article>
+        <div class="pocket" aria-hidden="true"></div>
+        <div class="flap" aria-hidden="true"><span class="seal">♥</span></div>
+        <button class="trigger" type="button" aria-controls="letter" aria-expanded="false" hidden>
+          <span>Apri la busta</span>
+        </button>
+        <span class="visually-hidden" role="status"></span>
+      </div>
+    </div>
+  </main>
+  <script>
+    const scene = document.querySelector(".scene");
+    const trigger = scene.querySelector(".trigger");
+    const label = trigger.querySelector("span");
+    const letter = document.querySelector("#letter");
+    const announcement = scene.querySelector('[role="status"]');
+
+    scene.removeAttribute("data-open");
+    letter.setAttribute("aria-hidden", "true");
+    trigger.hidden = false;
+
+    trigger.addEventListener("click", () => {
+      const isOpen = scene.toggleAttribute("data-open");
+      trigger.setAttribute("aria-expanded", String(isOpen));
+      letter.setAttribute("aria-hidden", String(!isOpen));
+      label.textContent = isOpen ? "Richiudi la busta" : "Apri la busta";
+      announcement.textContent = isOpen ? letter.textContent.trim() : "";
+    });
+  </script>
+</body>
+</html>
