@@ -103,23 +103,29 @@
       outline-offset: 0.23rem;
     }
 
-    #costanza {
-      --row: 1;
-      --column: 0;
+    .costanza-slot {
+      display: grid;
+      grid-area: 2 / 1;
+    }
+
+    .costanza-slot[data-moving] {
+      position: fixed;
+      z-index: 1;
+      inset: 0;
+      display: block;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .costanza-slot[data-moving] #costanza {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: calc((100% - var(--column-gap)) / 2);
+      width: var(--button-width);
       height: var(--button-height);
-      transform: translate(
-        calc(var(--column) * (100% + var(--column-gap))),
-        calc(var(--row) * (var(--button-height) + var(--row-gap)))
-      );
-      transition: transform 290ms cubic-bezier(0.2, 0.75, 0.25, 1.1);
+      pointer-events: auto;
     }
 
     #lorenzo {
-      z-index: 1;
+      z-index: 2;
       grid-area: 2 / 2;
       border-color: #8e3452;
       background: #8e3452;
@@ -182,7 +188,6 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      #costanza { transition: none; }
       .result { animation: none; }
     }
   </style>
@@ -192,7 +197,9 @@
     <span class="heart" aria-hidden="true">♥</span>
     <h1>Chi ama di più?</h1>
     <div class="answers">
-      <button class="answer" id="costanza" type="button">Costanza</button>
+      <div class="costanza-slot">
+        <button class="answer" id="costanza" type="button">Costanza</button>
+      </div>
       <button class="answer" id="lorenzo" type="button">Lorenzo</button>
       <p class="result" id="result" tabindex="-1" hidden>
         <span class="sparkle" aria-hidden="true">♥</span>
@@ -205,25 +212,57 @@
   </main>
   <script>
     const costanza = document.querySelector("#costanza");
+    const costanzaSlot = costanza.parentElement;
     const lorenzo = document.querySelector("#lorenzo");
     const result = document.querySelector("#result");
     const movement = document.querySelector("#movement");
-    const positions = [
-      [1, 0],
-      [0, 0],
-      [0, 1],
-      [2, 0],
-      [2, 1],
-    ];
-    let position = 0;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let flight;
+
+    function chooseDestination(button, otherButton, viewport) {
+      const edgeMargin = 20;
+      const minDistance = Math.min(88, viewport.width / 3, viewport.height / 3);
+
+      for (let attempt = 0; attempt < 8; attempt++) {
+        const x = Math.random() * (viewport.width + button.width + 2 * edgeMargin)
+          - button.width - edgeMargin;
+        const y = Math.random() * (viewport.height + button.height + 2 * edgeMargin)
+          - button.height - edgeMargin;
+        const overlaps = x < otherButton.right && x + button.width > otherButton.left
+          && y < otherButton.bottom && y + button.height > otherButton.top;
+
+        if (!overlaps && Math.hypot(x - button.left, y - button.top) >= minDistance) {
+          return { x, y };
+        }
+      }
+
+      return {
+        x: button.left < viewport.width / 2 ? viewport.width + edgeMargin : -button.width - edgeMargin,
+        y: button.top,
+      };
+    }
 
     costanza.addEventListener("click", () => {
-      const offset = 1 + Math.floor(Math.random() * (positions.length - 1));
-      position = (position + offset) % positions.length;
-      const [row, column] = positions[position];
-      costanza.style.setProperty("--row", row);
-      costanza.style.setProperty("--column", column);
-      movement.textContent = "Costanza si è spostata.";
+      const start = costanza.getBoundingClientRect();
+      flight?.cancel();
+      costanzaSlot.style.setProperty("--button-width", `${start.width}px`);
+      costanzaSlot.setAttribute("data-moving", "");
+
+      const viewport = costanzaSlot.getBoundingClientRect();
+      const { x, y } = chooseDestination(start, lorenzo.getBoundingClientRect(), viewport);
+      costanza.style.left = `${x}px`;
+      costanza.style.top = `${y}px`;
+
+      if (!reducedMotion.matches) {
+        flight = costanza.animate([
+          { transform: `translate(${start.left - x}px, ${start.top - y}px)` },
+          { transform: "none" },
+        ], { duration: 340, easing: "cubic-bezier(0.2, 0.75, 0.25, 1)" });
+      }
+
+      const escaped = x + start.width <= 0 || x >= viewport.width
+        || y + start.height <= 0 || y >= viewport.height;
+      movement.textContent = escaped ? "Costanza è uscita dallo schermo." : "Costanza si è spostata.";
     });
 
     lorenzo.addEventListener("click", () => {
