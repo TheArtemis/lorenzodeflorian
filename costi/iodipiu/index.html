@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#f9eee9">
+  <title>Chi ama di più?</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: system-ui, sans-serif;
+      color: #682138;
+      background: #f9eee9;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    body {
+      display: grid;
+      min-height: 100vh;
+      min-height: 100svh;
+      place-items: center;
+      margin: 0;
+      padding: 1rem;
+      background:
+        radial-gradient(ellipse at 18% 20%, #fff8ef, transparent 56%),
+        radial-gradient(ellipse at 83% 86%, #f1ccd3, transparent 65%),
+        #f9eee9;
+    }
+
+    .quiz {
+      position: relative;
+      width: min(100%, 35rem);
+      padding: clamp(1.75rem, 7vw, 3.25rem) clamp(1.15rem, 5vw, 3rem);
+      border: 1px solid #eac7c4;
+      border-radius: clamp(1.5rem, 6vw, 2.7rem);
+      background: linear-gradient(160deg, #fffbf4, #fff4ee);
+      box-shadow: 0 2rem 5rem -2.7rem #84314d78, 0 0.3rem 0.9rem #84314d12;
+      text-align: center;
+    }
+
+    .quiz::before {
+      position: absolute;
+      inset: 0.48rem;
+      border: 1px solid #f0d9d2;
+      border-radius: inherit;
+      pointer-events: none;
+      content: "";
+    }
+
+    .heart {
+      display: grid;
+      width: 2.8rem;
+      aspect-ratio: 1;
+      place-items: center;
+      margin: 0 auto 1.1rem;
+      border: 1px solid #f0d0cd;
+      border-radius: 50%;
+      background: #f9e3de;
+      color: #aa4360;
+      font: 1.25rem / 1 Georgia, serif;
+    }
+
+    h1 {
+      margin: 0;
+      font: italic clamp(2.35rem, 9vw, 4.15rem) / 1.05 Baskerville, Georgia, serif;
+      text-wrap: balance;
+    }
+
+    .answers {
+      --button-height: 3.15rem;
+      --row-gap: 0.75rem;
+      --column-gap: 0.85rem;
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-rows: repeat(3, var(--button-height));
+      gap: var(--row-gap) var(--column-gap);
+      width: min(100%, 19rem);
+      margin: 0.6rem auto 0;
+    }
+
+    .answer {
+      padding: 0 0.65rem;
+      border: 1px solid #e8b9bf;
+      border-radius: 999px;
+      background: #f9e2e2;
+      color: #76243e;
+      font: 650 0.95rem / 1 system-ui, sans-serif;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .answer:focus-visible {
+      outline: 2px solid #8d3552;
+      outline-offset: 0.23rem;
+    }
+
+    #costanza {
+      --row: 1;
+      --column: 0;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: calc((100% - var(--column-gap)) / 2);
+      height: var(--button-height);
+      transform: translate(
+        calc(var(--column) * (100% + var(--column-gap))),
+        calc(var(--row) * (var(--button-height) + var(--row-gap)))
+      );
+      transition: transform 290ms cubic-bezier(0.2, 0.75, 0.25, 1.1);
+    }
+
+    #lorenzo {
+      z-index: 1;
+      grid-area: 2 / 2;
+      border-color: #8e3452;
+      background: #8e3452;
+      color: #fff7f1;
+    }
+
+    @media (hover: hover) {
+      .answer:hover {
+        filter: brightness(0.95);
+      }
+    }
+
+    .result {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      margin: 0;
+      color: #8e3452;
+      font: italic clamp(1.9rem, 8vw, 2.85rem) / 1.12 Baskerville, Georgia, serif;
+      animation: reveal 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .sparkle {
+      position: absolute;
+      color: #ba5a72;
+      font: 1.06rem / 1 Georgia, serif;
+    }
+
+    .sparkle:nth-child(1) {
+      top: 21%;
+      left: 16%;
+      transform: rotate(-18deg);
+    }
+
+    .sparkle:nth-child(2) {
+      top: 13%;
+      right: 22%;
+      transform: rotate(16deg) scale(1.25);
+    }
+
+    .sparkle:nth-child(3) {
+      right: 13%;
+      bottom: 20%;
+      transform: rotate(18deg) scale(0.8);
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    @keyframes reveal {
+      from { opacity: 0; transform: translateY(0.6rem) scale(0.94); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #costanza { transition: none; }
+      .result { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="quiz">
+    <span class="heart" aria-hidden="true">♥</span>
+    <h1>Chi ama di più?</h1>
+    <div class="answers">
+      <button class="answer" id="costanza" type="button">Costanza</button>
+      <button class="answer" id="lorenzo" type="button">Lorenzo</button>
+      <p class="result" id="result" tabindex="-1" hidden>
+        <span class="sparkle" aria-hidden="true">♥</span>
+        <span class="sparkle" aria-hidden="true">♥</span>
+        <span class="sparkle" aria-hidden="true">♥</span>
+        Risposta Esatta!
+      </p>
+    </div>
+    <span class="visually-hidden" id="movement" role="status"></span>
+  </main>
+  <script>
+    const costanza = document.querySelector("#costanza");
+    const lorenzo = document.querySelector("#lorenzo");
+    const result = document.querySelector("#result");
+    const movement = document.querySelector("#movement");
+    const positions = [
+      [1, 0],
+      [0, 0],
+      [0, 1],
+      [2, 0],
+      [2, 1],
+    ];
+    let position = 0;
+
+    costanza.addEventListener("click", () => {
+      const offset = 1 + Math.floor(Math.random() * (positions.length - 1));
+      position = (position + offset) % positions.length;
+      const [row, column] = positions[position];
+      costanza.style.setProperty("--row", row);
+      costanza.style.setProperty("--column", column);
+      movement.textContent = "Costanza si è spostata.";
+    });
+
+    lorenzo.addEventListener("click", () => {
+      result.hidden = false;
+      result.focus({ preventScroll: true });
+      costanza.hidden = true;
+      lorenzo.hidden = true;
+      movement.textContent = "";
+    });
+  </script>
+</body>
+</html>
